@@ -1,0 +1,30 @@
+ldapadd -x -w admin -D "cn=admin,dc=vmo2,dc=com" << EOF
+
+dn: ou=users,dc=vmo2,dc=com
+objectClass: organizationalUnit
+ou: users
+
+dn: uid=my_user,ou=users,dc=vmo2,dc=com
+objectClass: inetOrgPerson
+cn: Test User
+sn: User
+uid: my_user
+userPassword: my_password
+
+dn: uid=my_user1,ou=users,dc=vmo2,dc=com
+objectClass: inetOrgPerson
+cn: Test User1
+sn: User
+uid: my_user1
+userPassword: my_password1
+
+
+dn: uid=my_user2,ou=users,dc=vmo2,dc=com
+objectClass: inetOrgPerson
+cn: Test User2
+sn: User
+uid: my_user2
+userPassword: my_password2
+EOF
+
+

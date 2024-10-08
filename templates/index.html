@@ -1,0 +1,30 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Login Page</title>
+</head>
+<body>
+    <div class="container">
+        <h2>Login</h2>
+        <form action="/login" method="post">
+            <input type="text" name="username" placeholder="Username" required><br>
+            <input type="password" name="password" placeholder="Password" required><br>
+            {% if otp_required %}
+                <input type="text" name="otp" placeholder="Enter OTP" required><br>
+            {% endif %}
+            <button type="submit">Login</button>
+        </form>
+
+        {% if qr_code %}
+            <h3>Scan QR Code with Authenticator App</h3>
+	    <img src="data:image/png;base64,{{ qr_image }}" alt="QR Code">
+	    <p>Data: {{ data }}</p>
+        {% endif %}
+    </div>
+</body>
+</html>
+

@@ -1,0 +1,64 @@
+version: '3'
+services:
+  # Vault service
+  vault:
+    image: vault:1.13.2
+    container_name: vault
+    ports:
+      - "8200:8200"
+    environment:
+      VAULT_DEV_ROOT_TOKEN_ID: root  # Vault dev mode with root token
+      VAULT_DEV_LISTEN_ADDRESS: 0.0.0.0:8200
+      VAULT_API_ADDR: "http://0.0.0.0:8200"
+    command: vault server -dev -dev-root-token-id=root
+    volumes:
+      - vault-data:/vault/data
+    networks:
+      - app-network
+
+  # Bitnami OpenLDAP service
+  openldap:
+    image: bitnami/openldap:2.6.3
+    container_name: openldap
+    environment:
+      LDAP_ROOT: "dc=vmo2,dc=com"
+      LDAP_ADMIN_USERNAME: "admin"
+      LDAP_ADMIN_PASSWORD: "admin"
+      LDAP_USERS: "user1,user2" # Pre-create users if needed
+      LDAP_PASSWORDS: "password1,password2"
+      LDAP_USER_DC: "users"
+
+    ports:
+      - "1389:1389" # LDAP (use this instead of default 389 to avoid conflicts)
+      - "1636:1636" # LDAPS
+    volumes:
+      - openldap-data:/home/rahul/app/bitnami/openldap  # Persistent storage for LDAP data
+    networks:
+      - app-network
+
+  # Flask App service from local Docker environment
+  flask-app:
+    image: flask-ldap-vault-app:latest  # Use the locally built image
+    container_name: flask-app
+    ports:
+      - "5000:5000"
+    environment:
+      LDAP_SERVER: "ldap://openldap:1389"
+      LDAP_BASE_DN: "dc=vmo2,dc=com"
+      LDAP_USER_DN: "cn={},ou=users,dc=vmo2,dc=com"
+      VAULT_ADDR: "http://vault:8200"
+      VAULT_TOKEN: "root"
+      TOTP_PATH: "totp"
+    depends_on:
+      - vault
+      - openldap
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  vault-data:
+  openldap-data:
